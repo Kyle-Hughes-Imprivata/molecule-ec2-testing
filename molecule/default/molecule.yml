@@ -1,17 +1,28 @@
 ---
-dependency:
-   name: galaxy
 driver:
-   name: ec2
+  name: ec2
+
 platforms:
-  - name: instance
+  - name: aws-ec2-ubuntu
     image_owner: 099720109477
     image_name: ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*
     instance_type: t2.micro
     vpc_subnet_id: subnet-004abac234ef4680f
-    tags:
-      - Name: molecule_instance
+    instance_tags:
+      - Name: molecule-aws-ec2-ubuntu
+
 provisioner:
   name: ansible
+  playbooks:
+    converge: converge.yml
+
 verifier:
-  name: ansible
+  name: testinfra
+  directory: ../tests/
+  env:
+    # get rid of the DeprecationWarning messages of third-party libs,
+    # see https://docs.pytest.org/en/latest/warnings.html#deprecationwarning-and-pendingdeprecationwarning
+    PYTHONWARNINGS: "ignore:.*U.*mode is deprecated:DeprecationWarning"
+  options:
+    # show which tests where executed in test output
+    v: 1
